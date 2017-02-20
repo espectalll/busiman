@@ -1,0 +1,12 @@
+[package]
+name = "busiman"
+version = "0.1.0"
+authors = ["Francisco Gómez García <espectalll@kydara.com>"]
+
+[dependencies]
+diesel = { version = "0.10", features = ["postgres"] }
+diesel_codegen = { version = "0.10", features = ["postgres"] }
+rocket = "0.2"
+rocket_codegen = "0.2"
+dotenv = "0.8.0"
+
