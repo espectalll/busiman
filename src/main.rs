@@ -25,7 +25,9 @@ use rocket::response::content::{Content, JSON};
 
 #[derive(Debug, FromForm)]
 struct Device {
-    mac_address: MacAddr,
+    company_ip: IpAddr,
+    port: u16,
+    mac_address: MacAddr
 }
 
 #[get("/")]
@@ -35,12 +37,14 @@ fn root(cookies: &Cookies) -> Content<&'static str> {
              <h2>2017 @espectalll</h2>")
 }
 
-#[post("/turnon", data = "<device>")]
-fn turnon(device: Form<Device>) -> JSON<&'static str> {
-    let company_ip = IpAddr::V4(Ipv4Addr::new(255, 255, 255, 255));
-    let mac_address = device.get().mac_address.clone();
+#[post("/turnon", data = "<device_form>")]
+fn turnon(device_form: Form<Device>) -> JSON<&'static str> {
+    let device = device_form.get();
+    let company_ip = device.company_ip;
+    let port = device.port;
+    let mac_address = device.mac_address;
 
-    match wakeonlan::wake_up(company_ip, mac_address) {
+    match wakeonlan::wake_up(company_ip, port, mac_address) {
         true => JSON("{ 'success': 'true' }"),
         false => JSON("{ 'success': 'false' }"),
     }
