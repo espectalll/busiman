@@ -9,4 +9,5 @@ diesel_codegen = { version = "0.10", features = ["postgres"] }
 rocket = "0.2"
 rocket_codegen = "0.2"
 dotenv = "0.8.0"
-
+lazy_static = "0.2.2"
+regex = "0.2"
