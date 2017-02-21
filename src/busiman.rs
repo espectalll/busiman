@@ -44,7 +44,7 @@ impl<'v> FromFormValue<'v> for MacAddr {
                     let mut addr: [u8; 6] = [0, 0, 0, 0, 0, 0];
                     let mut i = 0;
                     for s in div.split(addr_str.as_str()) {
-			let x: u8 = s.parse().unwrap();
+			let x = u8::from_str_radix(s, 16).unwrap();
                         println!("{:x}", x);
                         addr[i] = x;
                         i += 1;
