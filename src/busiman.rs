@@ -11,11 +11,11 @@ impl MacAddr {
 		if addr <= 0xff_ff_ff_ff_ff_ff {
 			return Ok(MacAddr(addr))
 		} else {
-			return Err(&*addr.to_string());
+			return Err("Whoopsie!");
 		}
 	}
 
-	fn into_u64(&self) -> u64 { self.0 }
+	pub fn into_u64(&self) -> u64 { self.0 }
 }
 
 impl Clone for MacAddr {
