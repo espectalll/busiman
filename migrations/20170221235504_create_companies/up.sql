@@ -1,0 +1,6 @@
+CREATE TABLE companies (
+  id SERIAL PRIMARY KEY,
+  user_id SERIAL NOT NULL,
+  name VARCHAR NOT NULL DEFAULT 'Company',
+  ip VARCHAR NOT NULL
+)

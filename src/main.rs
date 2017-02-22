@@ -2,8 +2,8 @@
 #![feature(plugin)]
 #![plugin(rocket_codegen)]
 
-use std::io;
-use std::net::{IpAddr, Ipv4Addr};
+use std::net::IpAddr;
+use std::env;
 
 #[macro_use]
 extern crate lazy_static;
@@ -11,7 +11,7 @@ extern crate lazy_static;
 extern crate regex;
 
 mod busiman;
-use busiman::MacAddr;
+use busiman::*;
 
 mod wakeonlan;
 
@@ -20,36 +20,55 @@ use rocket::http::{Cookie, Cookies, ContentType};
 use rocket::request::Form;
 use rocket::response::content::{Content, JSON};
 
-// TODO: Develop PostgreSQL database
-// TODO: Implement UI templates
+extern crate dotenv;
+use dotenv::dotenv;
+infer_schema!("dotenv:DATABASE_URL");
+
+#[macro_use]
+extern crate diesel;
+#[macro_use]
+extern crate diesel_codegen;
+use diesel::Connection;
+use diesel::pg::PgConnection;
 
 #[derive(Debug, FromForm)]
 struct Device {
-    company_ip: IpAddr,
+    ip: IpAddr,
     port: u16,
-    mac_address: MacAddr
+    mac_address: MacAddr,
 }
 
 #[get("/")]
-fn root(cookies: &Cookies) -> Content<&'static str> {
+fn root() -> Content<&'static str> {
     Content(ContentType::HTML,
             "<h1>Here shall be nekos :3</h1>
              <h2>2017 @espectalll</h2>")
 }
 
+#[get("/panel")]
+fn panel(cookies: &Cookies) -> &'static str {
+    /* let connection = establish_connection();
+    let results = users.filter(published.eq(true))
+        .limit(5)
+        .load::<User>(&connection)
+        .expect("Error loading posts"); */
+    return "Cookies! Yummy!";
+}
+
 #[post("/turnon", data = "<device_form>")]
 fn turnon(device_form: Form<Device>) -> JSON<&'static str> {
     let device = device_form.get();
-    let company_ip = device.company_ip;
+    let ip = device.ip;
     let port = device.port;
-    let mac_address = device.mac_address;
+    let mac = device.mac_address;
 
-    match wakeonlan::wake_up(company_ip, port, mac_address) {
+    match wakeonlan::wake_up(ip, port, mac) {
         true => JSON("{ 'success': 'true' }"),
         false => JSON("{ 'success': 'false' }"),
     }
 }
 
 fn main() {
-    rocket::ignite().mount("/", routes![root, turnon]).launch();
+    dotenv().ok();
+    rocket::ignite().mount("/", routes![root, panel, turnon]).launch();
 }

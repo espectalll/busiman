@@ -1,6 +1,5 @@
 use std::clone::Clone;
-use std::fmt::Debug;
-use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
+use std::net::IpAddr;
 
 use regex::Regex;
 
@@ -10,15 +9,6 @@ use rocket::request::FromFormValue;
 pub struct MacAddr([u8; 6]);
 
 impl MacAddr {
-    pub fn new(addr: [u8; 6]) -> Result<Self, &'static str> {
-        if addr[0] <= 0xff && addr[1] <= 0xff && addr[2] <= 0xff && addr[3] <= 0xff &&
-           addr[4] <= 0xff && addr[5] <= 0xff {
-            return Ok(MacAddr(addr));
-        } else {
-            return Err("Whoopsie!");
-        }
-    }
-
     pub fn into_slice(&self) -> [u8; 6] {
         self.0
     }
@@ -37,14 +27,14 @@ impl<'v> FromFormValue<'v> for MacAddr {
         match String::from_form_value(form_value) {
             Ok(addr_str) => {
                 lazy_static! {
-                    static ref regex: Regex = Regex::new("^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$")
+                    static ref RE: Regex = Regex::new("^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$")
                                                     .unwrap();
-                    static ref div: Regex = Regex::new(r"[:-]").unwrap();
+                    static ref DIV: Regex = Regex::new(r"[:-]").unwrap();
                 }
-                if regex.is_match(addr_str.as_str()) {
+                if RE.is_match(addr_str.as_str()) {
                     let mut addr: [u8; 6] = [0, 0, 0, 0, 0, 0];
                     let mut i = 0;
-                    for s in div.split(addr_str.as_str()) {
+                    for s in DIV.split(addr_str.as_str()) {
                         let x = u8::from_str_radix(s, 16).unwrap();
                         addr[i] = x;
                         i += 1;
@@ -58,3 +48,45 @@ impl<'v> FromFormValue<'v> for MacAddr {
         }
     }
 }
+
+// users
+#[derive(Queryable)]
+pub struct User {
+    pub id: i32,
+    pub username: String,
+    pub fullname: String,
+    pub password: String,
+}
+
+// sessions
+#[derive(Queryable)]
+pub struct Session {
+    pub id: i32,
+    pub user_id: i32,
+}
+
+// companies
+#[derive(Queryable)]
+pub struct Company {
+    pub id: i32,
+    pub user_id: i32,
+    pub name: String,
+    pub ip: IpAddr,
+}
+
+// company_devices
+#[derive(Queryable)]
+pub struct CompanyDevice {
+    pub id: i32,
+    pub company_id: i32,
+    pub name: String,
+    pub mac: MacAddr,
+}
+
+/*
+pub fn establish_connection() -> PgConnection {
+    let database_url = env::var("DATABASE_URL").expect("Error: DATABASE_URL must be set");
+    PgConnection::establish(&database_url)
+        .expect(&format!("Error: unable to connect to {}", database_url));
+}
+*/

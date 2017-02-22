@@ -2,20 +2,20 @@ use std::net::{IpAddr, UdpSocket};
 
 use busiman::MacAddr;
 
-pub fn wake_up(request_ip: IpAddr, port: u16, mac_address: MacAddr) -> bool {
-    let mut socket;
+pub fn wake_up(ip: IpAddr, port: u16, mac: MacAddr) -> bool {
+    let socket;
     match UdpSocket::bind("127.0.0.1:1234") {
         Ok(s) => socket = s,
         Err(_) => {
-            println!("Error: unable to bind!");
+            println!("Error: unable to bind");
             return false;
         }
     }
-    let buf = mac_address.into_slice();
-    match socket.send_to(&buf, (request_ip, port)) {
+    let buf = mac.into_slice();
+    match socket.send_to(&buf, (ip, port)) {
         Ok(_) => return true,
         Err(_) => {
-            println!("Error: unable to send!");
+            println!("Error: unable to send to {}:{}", ip, port);
             return false;
         }
     }
