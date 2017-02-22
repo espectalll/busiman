@@ -4,6 +4,7 @@
 
 use std::net::IpAddr;
 use std::env;
+use std::path::{Path, PathBuf};
 
 #[macro_use]
 extern crate lazy_static;
@@ -18,11 +19,12 @@ mod wakeonlan;
 extern crate rocket;
 use rocket::http::{Cookie, Cookies, ContentType};
 use rocket::request::Form;
+use rocket::response::NamedFile;
 use rocket::response::content::{Content, JSON};
 
 extern crate dotenv;
 use dotenv::dotenv;
-infer_schema!("dotenv:DATABASE_URL");
+// infer_schema!("dotenv:DATABASE_URL");
 
 #[macro_use]
 extern crate diesel;
@@ -30,20 +32,6 @@ extern crate diesel;
 extern crate diesel_codegen;
 use diesel::Connection;
 use diesel::pg::PgConnection;
-
-#[derive(Debug, FromForm)]
-struct Device {
-    ip: IpAddr,
-    port: u16,
-    mac_address: MacAddr,
-}
-
-#[get("/")]
-fn root() -> Content<&'static str> {
-    Content(ContentType::HTML,
-            "<h1>Here shall be nekos :3</h1>
-             <h2>2017 @espectalll</h2>")
-}
 
 #[get("/panel")]
 fn panel(cookies: &Cookies) -> &'static str {
@@ -53,6 +41,13 @@ fn panel(cookies: &Cookies) -> &'static str {
         .load::<User>(&connection)
         .expect("Error loading posts"); */
     return "Cookies! Yummy!";
+}
+
+#[derive(Debug, FromForm)]
+struct Device {
+    ip: IpAddr,
+    port: u16,
+    mac_address: MacAddr,
 }
 
 #[post("/turnon", data = "<device_form>")]
@@ -68,7 +63,17 @@ fn turnon(device_form: Form<Device>) -> JSON<&'static str> {
     }
 }
 
+#[get("/<path..>")]
+fn static_web(path: PathBuf) -> Option<NamedFile> {
+    NamedFile::open(Path::new("static/").join(path)).ok()
+}
+
+#[get("/")]
+fn root() -> Option<NamedFile> {
+    static_web(PathBuf::from("index.html"))
+}
+
 fn main() {
     dotenv().ok();
-    rocket::ignite().mount("/", routes![root, panel, turnon]).launch();
+    rocket::ignite().mount("/", routes![panel, turnon, static_web, root]).launch();
 }

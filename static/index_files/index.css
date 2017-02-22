@@ -1,0 +1,123 @@
+body {
+  width: 100%; height: 100vh; margin: 0;
+  font-family: Helvetica;
+  background: url('../backgrounds/Flocking_by_noombox.jpg');
+}
+
+.container {
+  color: white;
+  user-select: none;
+  -moz-user-select: none;
+  cursor: default;
+}
+
+.panel {
+  width: 100%; min-height: 100vh;
+  max-width: 348px;
+  position: relative;
+  background-color: #434354cc;
+  box-shadow: 2px 0px 12px #000c;
+  font-size: 13px;
+  line-height: 13px;
+}
+.panel .section > * {
+  padding: 6px 12px;
+  box-sizing: border-box;
+}
+.panel .section .header, .panel .footer {
+  background: #383f5f;
+}
+.panel .section .header {
+  text-transform: capitalize;
+  font-weight: bold;
+  margin: 0;
+  
+  box-shadow: 0 1px 3px #000000b3;
+}
+.panel .section .item {
+  background: #4456aa33;
+}
+.panel .section .item:not(:last-child) {
+  border-bottom: 1px solid #2929294d;
+}
+.panel .section:not(.footer) .item:not(.selected) {
+  cursor: pointer;
+  transition: all .5s;
+}
+.panel .section:not(.footer) .item:not(.selected):hover {
+  background: #4456aa88;
+}
+.panel .section .item p {
+  margin: auto 0;
+}
+.panel .section .item p:first-child {
+  font-weight: bold;
+}
+.panel .section .selected {
+  background: #acbbff33;
+}
+.panel .section :not(.selected) {
+  cursor: link;
+}
+.panel .section form * {
+  margin: 2px 0;
+}
+.panel .section form input[type=text] {
+  width: 100%; 
+  box-sizing: border-box;
+}
+.panel .footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  box-shadow: 0px 0px 3px #000000b3;
+}
+.panel .footer .item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.panel .footer img {
+  height: 32px;
+  border-radius: 100%;
+}
+
+.about {
+  bottom: 12px; right: 12px;
+  position: absolute;
+  display: none;
+  text-shadow: 0 0 2px black;
+}
+.about > * {
+  margin: 0 0 4px;
+  font-weight: normal;
+  font-size: 12px;
+  line-height: 12px;
+}
+
+.about a, :link, :visited, :active {
+  text-decoration: inherit;
+  font-style: inherit;
+  color: inherit;
+}
+
+@media (min-width: 768px) {
+  @keyframes slidePanel {
+    0% {
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  .panel {
+    animation: .5s slidePanel ease-out .1s;
+  }
+  
+  .about {
+    display: initial;
+  }
+}
