@@ -1,5 +1,6 @@
 #![feature(custom_derive)]
 #![feature(plugin)]
+#![feature(relaxed_adts)] // see rust-lang/rust#35626
 #![plugin(rocket_codegen)]
 
 use std::net::IpAddr;
@@ -21,17 +22,6 @@ use rocket::http::{Cookie, Cookies, ContentType};
 use rocket::request::Form;
 use rocket::response::NamedFile;
 use rocket::response::content::{Content, JSON};
-
-extern crate dotenv;
-use dotenv::dotenv;
-// infer_schema!("dotenv:DATABASE_URL");
-
-#[macro_use]
-extern crate diesel;
-#[macro_use]
-extern crate diesel_codegen;
-use diesel::Connection;
-use diesel::pg::PgConnection;
 
 #[get("/panel")]
 fn panel(cookies: &Cookies) -> &'static str {
@@ -74,6 +64,5 @@ fn root() -> Option<NamedFile> {
 }
 
 fn main() {
-    dotenv().ok();
     rocket::ignite().mount("/", routes![panel, turnon, static_web, root]).launch();
 }

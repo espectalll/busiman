@@ -9,8 +9,16 @@ use rocket::request::FromFormValue;
 pub struct MacAddr([u8; 6]);
 
 impl MacAddr {
+    pub fn new(a: [u8; 6]) -> MacAddr {
+        MacAddr{0: a}
+    }
     pub fn into_slice(&self) -> [u8; 6] {
         self.0
+    }
+
+    pub fn into_string(&self) -> String {
+        format!("{:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}",
+        self.0[0], self.0[1], self.0[2], self.0[3], self.0[4], self.0[5])
     }
 }
 
@@ -48,45 +56,3 @@ impl<'v> FromFormValue<'v> for MacAddr {
         }
     }
 }
-
-// users
-#[derive(Queryable)]
-pub struct User {
-    pub id: i32,
-    pub username: String,
-    pub fullname: String,
-    pub password: String,
-}
-
-// sessions
-#[derive(Queryable)]
-pub struct Session {
-    pub id: i32,
-    pub user_id: i32,
-}
-
-// companies
-#[derive(Queryable)]
-pub struct Company {
-    pub id: i32,
-    pub user_id: i32,
-    pub name: String,
-    pub ip: IpAddr,
-}
-
-// company_devices
-#[derive(Queryable)]
-pub struct CompanyDevice {
-    pub id: i32,
-    pub company_id: i32,
-    pub name: String,
-    pub mac: MacAddr,
-}
-
-/*
-pub fn establish_connection() -> PgConnection {
-    let database_url = env::var("DATABASE_URL").expect("Error: DATABASE_URL must be set");
-    PgConnection::establish(&database_url)
-        .expect(&format!("Error: unable to connect to {}", database_url));
-}
-*/

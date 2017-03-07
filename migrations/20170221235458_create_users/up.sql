@@ -1,6 +1,0 @@
-CREATE TABLE posts (
-  id SERIAL PRIMARY KEY,
-  username VARCHAR NOT NULL,
-  fullname TEXT NOT NULL DEFAULT 'User',
-  password VARCHAR NOT NULL
-)

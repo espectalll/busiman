@@ -95,7 +95,7 @@ body {
   line-height: 12px;
 }
 
-.about a, :link, :visited, :active {
+.about a, .about a:link, .about a:visited, .about a:active {
   text-decoration: inherit;
   font-style: inherit;
   color: inherit;
