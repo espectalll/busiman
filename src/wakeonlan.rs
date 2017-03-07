@@ -1,7 +1,5 @@
 use std::net::{IpAddr, Ipv4Addr, UdpSocket};
-use std::error::Error;
 use std::io::prelude::*;
-use std::process::{Command, Stdio};
 
 use busiman::MacAddr;
 
@@ -16,7 +14,7 @@ pub fn wake_up(ip: IpAddr, port: u16, mac: MacAddr) -> bool {
                     return false;
                 }
             }
-        },
+        }
         Err(_) => {
             println!("Error: unable to bind");
             return false;

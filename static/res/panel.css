@@ -2,6 +2,7 @@ body {
   width: 100%; height: 100vh; margin: 0;
   font-family: Helvetica;
   background: url('../backgrounds/Flocking_by_noombox.jpg');
+  transition: background 3s;
 }
 
 .container {
@@ -15,7 +16,7 @@ body {
   width: 100%; min-height: 100vh;
   max-width: 348px;
   position: relative;
-  background-color: #434354cc;
+  background-color: rgba(67, 67, 84, .5);
   box-shadow: 2px 0px 12px #000c;
   font-size: 13px;
   line-height: 13px;
@@ -31,21 +32,21 @@ body {
   text-transform: capitalize;
   font-weight: bold;
   margin: 0;
-  
-  box-shadow: 0 1px 3px #000000b3;
+
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .2);
 }
 .panel .section .item {
-  background: #4456aa33;
+  background: rgba(68, 86, 170, .3);
 }
 .panel .section .item:not(:last-child) {
-  border-bottom: 1px solid #2929294d;
+  border-bottom: 1px solid rgba(104, 104, 104, .3);
 }
 .panel .section:not(.footer) .item:not(.selected) {
   cursor: pointer;
   transition: all .5s;
 }
 .panel .section:not(.footer) .item:not(.selected):hover {
-  background: #4456aa88;
+  background: rgba(68, 86, 170, .9);
 }
 .panel .section .item p {
   margin: auto 0;
@@ -54,7 +55,7 @@ body {
   font-weight: bold;
 }
 .panel .section .selected {
-  background: #acbbff33;
+  background: rgba(172, 187, 255, .2);
 }
 .panel .section :not(.selected) {
   cursor: link;
@@ -63,14 +64,14 @@ body {
   margin: 2px 0;
 }
 .panel .section form input[type=text] {
-  width: 100%; 
+  width: 100%;
   box-sizing: border-box;
 }
 .panel .footer {
   position: absolute;
   bottom: 0;
   width: 100%;
-  box-shadow: 0px 0px 3px #000000b3;
+  box-shadow: 0px 0px 3px rgba(0, 0, 0, .7);
 }
 .panel .footer .item {
   display: flex;
@@ -112,11 +113,11 @@ body {
       transform: translateX(0);
     }
   }
-  
+
   .panel {
     animation: .5s slidePanel ease-out .1s;
   }
-  
+
   .about {
     display: initial;
   }
