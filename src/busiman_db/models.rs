@@ -19,6 +19,7 @@ pub struct Session {
 #[derive(Insertable)]
 #[table_name="sessions"]
 pub struct NewSession {
+    pub id: i32,
     pub user_id: i32,
 }
 

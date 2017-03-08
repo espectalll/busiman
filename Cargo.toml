@@ -2,12 +2,15 @@
 name = "busiman"
 version = "0.0.2"
 authors = ["Francisco Gómez García <espectalll@kydara.com>"]
+repository = "https://github.com/espectalll/busiman"
+license = "AGPL-3.0"
 
 [dependencies]
-diesel = { version = "0.10", features = ["postgres"] }
-diesel_codegen = { version = "0.10", features = ["postgres"] }
+diesel = { version = "0.11", features = ["postgres"] }
+diesel_codegen = { version = "0.11", features = ["postgres"] }
 rocket = "0.2"
 rocket_codegen = "0.2"
-dotenv = "0.8.0"
-lazy_static = "0.2.2"
+dotenv = "0.8"
+lazy_static = "0.2"
 regex = "0.2"
+rand = "0.3"

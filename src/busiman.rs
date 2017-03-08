@@ -81,7 +81,7 @@ pub struct PowerMsg([u8; 2]);
 
 impl PowerMsg {
     pub fn new(a: [u8; 2]) -> Option<PowerMsg> {
-        if a[0] < 2 && a[1] < 2 {
+        if a[0] >= 1 && a[0] <= 2 && a[1] >= 0 && a[1] <= 1 {
             return Some(PowerMsg { 0: a })
         }
         else {
@@ -112,7 +112,7 @@ impl<'v> FromFormValue<'v> for PowerMsg {
                 match a_str.parse::<u8>() {
                     Ok(a) => {
                         match b_str.parse::<u8>() {
-                            Ok(b) => return Ok(PowerMsg { 0: [a, b] }),
+                            Ok(b) => return Ok(PowerMsg::new([a, b]).unwrap()),
                             _ => return Err(form_value),
                         }
                     },
@@ -141,4 +141,14 @@ pub fn power_req(ip: IpAddr, port: u16, msg: PowerMsg) -> bool {
             return false;
         }
     }
+
+    /*
+    Just in case ;3
+
+    let output = Command::new("bash")
+                     .arg("./send.sh")
+                     .arg(msg.into_string())
+                     .output()
+                     .expect(format!("Error: no data received!");
+    */
 }

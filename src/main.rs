@@ -13,6 +13,11 @@ extern crate regex;
 
 extern crate dotenv;
 
+extern crate rand;
+use rand::os::OsRng;
+use rand::{Rng, thread_rng};
+use rand::distributions::Range;
+
 #[macro_use]
 extern crate diesel;
 use diesel::prelude::*;
@@ -39,18 +44,22 @@ fn static_panel(path: PathBuf, cookies: &Cookies) -> Option<NamedFile> {
 
 #[get("/panel")]
 fn panel(cookies: &Cookies) -> Result<NamedFile, Status> {
-    let session_id = cookies.find("session_id").expect("No cookie!")
+    let sid = cookies.find("sid").expect("No cookie!")
                         .value().parse::<i32>().expect("Invalid cookie!");
     let connection = establish_connection();
 
-    match sessions::table.find(session_id).load::<Session>(&connection) {
+    match sessions::table.find(sid).load::<Session>(&connection) {
         Ok(session) => {
-            println!("{:?}", session);
-            return Ok(NamedFile::open(Path::new("panel/index.html")).ok().unwrap())
+            // TODO: detect if username matches session UID
+            if session.len() == 1 {
+                return Ok(NamedFile::open(Path::new("panel/index.html")).ok().unwrap());
+            } else if session.len() < 1 {
+                return Err(Status::Unauthorized);
+            } else {
+                return Err(Status::InternalServerError);
+            }
         },
-        Err(_) => {
-            return Err(Status::Unauthorized)
-        }
+        Err(_) => Err(Status::InternalServerError),
     }
 }
 
@@ -60,27 +69,35 @@ struct LoginForm {
     password: String,
 }
 
-// TODO: Send (valid) cookies to user!
 #[post("/login", data = "<login_form>")]
-fn login(login_form: Form<LoginForm>) -> Redirect {
+fn login(cookies: &Cookies, login_form: Form<LoginForm>) -> Redirect {
     let login = login_form.get();
     let username = &login.username;
     let password = &login.password;
     let connection = establish_connection();
 
-    match users::table.filter(users::username.eq(username)).load::<User>(&connection) {
-        Ok(user) => {
-            println!("User: {:?}", user);
-            // println!("Username: {:?}, Password: {:?}", user.username, user.password);
-            let s = NewSession{ user_id: 1 };
-            let this_session = diesel::insert(&s).into(sessions::table)
-                .get_result::<Session>(&connection).expect("Error: Unable to create session!");
-            return Redirect::to("/panel");
-                // .adjoin_raw_header(format!("Set-Cookie: session_id={}", 1));
+    match cookies.find("sid") {
+    	Some(_) => return Redirect::to("/panel"),
+    	None => {
+    	    match users::table.filter(users::username.eq(username)).load::<User>(&connection) {
+    	        Ok(user) => {
+    	            if user.len() == 1 && password.clone() == user[0].password {
+    	                let mut rnd = OsRng::new().expect("Whoopsie! No seed!");
+                        let s = NewSession{
+                            id: rnd.gen_range((2 as i32).pow(16), (2 as i32).pow(22)),
+                            user_id: user[0].id,
+                        };
+                        diesel::insert(&s).into(sessions::table)
+                            .get_result::<Session>(&connection).expect("Error: Unable to create session!");
+                        cookies.add(Cookie::new("sid", s.id.to_string()));
+                        return Redirect::to("/panel");
+                    } else {
+                        return Redirect::to("/");
+                    }
+                },
+                _ => return Redirect::to("/"),
+            }
         },
-        Err(_) => {
-            return Redirect::to("/");
-        }
     }
 }
 
@@ -88,14 +105,20 @@ fn login(login_form: Form<LoginForm>) -> Redirect {
 struct NewCompanyReq {
     name: String,
     ip: String,
+    user_id: i32,
 }
 
-// TODO: Implement company creation
+// TODO: Implement decent company creation
 #[post("/new_company", data = "<new_form>")]
 fn new_company(new_form: Form<NewCompanyReq>) -> JSON<&'static str> {
-    let company = new_form.get();
-    let name = &company.name;
-    let ip = &company.ip;
+    let company_req = new_form.get();
+    let name = company_req.name.clone();
+    let ip = company_req.ip.clone();
+    let uid = company_req.user_id;
+    let connection = establish_connection();
+
+    diesel::insert(&NewCompany{ name: name, ip: ip, user_id: uid }).into(companies::table)
+                       .get_result::<Company>(&connection).expect("Error: Unable to create company!");
 
     return JSON("{ 'success': 'true' }");
 }
@@ -110,13 +133,22 @@ struct NewWemosReq {
     device_2: String,
 }
 
-// TODO: Implement WeMos creation
+// TODO: Implement decent WeMos creation
 #[post("/new_wemos", data = "<new_form>")]
 fn new_wemos(new_form: Form<NewWemosReq>) -> JSON<&'static str> {
-    let company = new_form.get();
-    let local_ip = &company.local_ip;
-    let device_1_name = &company.device_1;
-    let device_2_name = &company.device_2;
+    let wemos_req = new_form.get();
+    let company_id = wemos_req.company_id;
+    let local_ip = &wemos_req.local_ip;
+    let device_1_name = &wemos_req.device_1;
+    let device_2_name = &wemos_req.device_2;
+    let connection = establish_connection();
+
+    let dev1 = diesel::insert(&NewDevice{ name: device_1_name.clone(), status: false }).into(devices::table)
+                        .get_result::<Device>(&connection).expect("Error: Unable to create device!");
+    let dev2 = diesel::insert(&NewDevice{ name: device_2_name.clone(), status: false }).into(devices::table)
+                        .get_result::<Device>(&connection).expect("Error: Unable to create device!");
+    diesel::insert(&NewWemos{ company_id: company_id, local_ip: local_ip.clone(), device_1: dev1.id, device_2: dev2.id }).into(wemos::table)
+                        .get_result::<Wemos>(&connection).expect("Error: Unable to create WeMos!");
 
     return JSON("{ 'success': 'true' }");
 }
@@ -155,6 +187,5 @@ fn root() -> Option<NamedFile> {
 }
 
 fn main() {
-    // println!("{:?}", users::table::all_columns());
     rocket::ignite().mount("/", routes![static_panel, panel, login, new_company, new_wemos, power, static_web, root]).launch();
 }

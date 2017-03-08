@@ -1,3 +1,5 @@
+<!-- TODO: Implement as (Handlebars) template -->
+
 <!doctype html>
 <html>
 	<head>
@@ -6,6 +8,9 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>BusiMan</title>
 		<link rel="stylesheet" href="/res/panel.css">
+		<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"
+			integrity="sha256-/SIrNqv8h6QGKDuNoLGA4iret+kyesCkHGzVUUV0shc="
+			crossorigin="anonymous"></script>
 		<script src="/res/panel.js"></script>
 	</head>
 	<body>
@@ -37,7 +42,7 @@
 					<!--
 					<div class="item">
 						<p>Network A</p>
-						<p>192.168.1.1</p>
+						<p>192.168.1.1:123</p>
 					</div>
 					-->
 				</div>
@@ -48,11 +53,9 @@
 					<!--
 					<div class="item">
 						<p>Main Computer</p>
-						<p>00:11:22:33:44:55</p>
 					</div>
 					<div class="item">
 						<p>Local Server</p>
-						<p>aa:bb:cc:dd:ee:ff</p>
 					</div>
 					-->
 				</div>
@@ -60,7 +63,7 @@
 					<div class="header">
 						<span>Custom</span>
 					</div>
-					<form action="/power" method="post">
+					<form id="power" action="/power" method="post">
 						<input type="text" name="ip" placeholder="IP" />
 						<input type="text" name="port" placeholder="Port" />
 						<input type="text" name="msg" placeholder="Power Message" />
@@ -77,6 +80,7 @@
 			<div class="about">
 				<h1><a href="https://github.com/espectalll/busiman">BusiMan</a> 0.0.2 - <b>EARLY DEVELOPMENT</b></h1>
 				<h2>2017 <a href="https://espectalll.bit.surf">@espectalll</a></h2>
+				<h2>This program is licensed as GNU Affero GPL</h2>
 			</div>
 		</div>
 	</body>
